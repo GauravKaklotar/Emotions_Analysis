@@ -7,6 +7,34 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 
 export default function Example() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [text, setText] = useState('');
+  const [emotion, setEmotion] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent the default form submission behavior
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch the emotion prediction');
+      }
+
+      const data = await response.json();
+      setEmotion(data.emotion); // Update the state with the predicted emotion
+      setError(''); // Clear any previous errors
+    } catch (error) {
+      setError(error.message); // Set the error message if the request fails
+      setEmotion(''); // Clear the emotion if there's an error
+    }
+  };
 
   return (
     <div className="bg-white">
@@ -67,14 +95,17 @@ export default function Example() {
               Emotion Detection
             </h1>
             <p className="my-6 text-lg leading-8 text-gray-600 .no-underline">
-            Enter your text below, and this tool will analyze the emotions expressed in it. The emotions are classified into the following six categories: sadness, joy, love, anger, fear, and surprise.
+              Enter your text below, and this tool will analyze the emotions expressed in it. The emotions are classified into the following six categories: sadness, joy, love, anger, fear, and surprise.
             </p>
 
-            <form>
+            <form onSubmit={handleSubmit}>
               <div class="w-full mb-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
                 <div class="px-4 py-2 bg-white rounded-t-lg dark:bg-gray-800">
                   <label for="comment" class="sr-only">Your comment</label>
-                  <textarea id="comment" rows="10" class="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" placeholder="Enter your text..." required ></textarea>
+                  <textarea id="comment"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    rows="10" class="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" placeholder="Enter your text..." required ></textarea>
                 </div>
                 <div class="flex items-center justify-between px-3 py-2 border-t dark:border-gray-600">
                   <button type="submit" class="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-800">
@@ -83,6 +114,18 @@ export default function Example() {
                 </div>
               </div>
             </form>
+
+            {emotion && (
+        <div className="mt-4 text-lg text-gray-700">
+          Predicted Emotion: <strong>{emotion}</strong>
+        </div>
+      )}
+
+      {error && (
+        <div className="mt-4 text-lg text-red-500">
+          Error: <strong>{error}</strong>
+        </div>
+      )}
           </div>
         </div>
         <div

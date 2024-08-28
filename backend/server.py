@@ -1,8 +1,11 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import pickle
 
 # Initialize the Flask app
 app = Flask(__name__)
+
+CORS(app)
 
 # Load the trained model and TF-IDF vectorizer
 with open('../ML Files/model.pkl', 'rb') as model_file:
