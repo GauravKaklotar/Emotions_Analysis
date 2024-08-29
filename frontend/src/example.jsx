@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Dialog, DialogPanel } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import toast from 'react-hot-toast';
 
 
 export default function Example() {
@@ -11,8 +12,17 @@ export default function Example() {
   const [emotion, setEmotion] = useState('');
   const [error, setError] = useState('');
 
+  const dict = {
+    "joy": '😂',
+    "sadness": '😔',
+    "love": '❤️',
+    "anger": '😡',
+    "fear": '😱',
+    "surprise": '😮'
+  };
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent the default form submission behavior
+
 
     try {
       const response = await fetch('http://127.0.0.1:5000/predict', {
@@ -29,9 +39,13 @@ export default function Example() {
 
       const data = await response.json();
       setEmotion(data.emotion); // Update the state with the predicted emotion
+      toast(data.emotion, {
+        icon: dict[data.emotion],
+      });
       setError(''); // Clear any previous errors
     } catch (error) {
       setError(error.message); // Set the error message if the request fails
+      toast.error(error.message);
       setEmotion(''); // Clear the emotion if there's an error
     }
   };
